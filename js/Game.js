@@ -89,6 +89,8 @@ PlatformerGame.Game.prototype = {
     },
 
         reset: function() {
+            this.music.stop();
+            this.choppersound.stop();
         this.state.restart();
     },
 createStar: function() {
