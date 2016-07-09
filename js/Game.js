@@ -54,7 +54,7 @@ PlatformerGame.Game.prototype = {
 
         this.music = this.game.add.audio('music');
         this.music.loop = true;
-        //this.music.play();
+        this.music.play();
         this.choppersound = this.game.add.audio('chopper');
         
         this.choppersound.play(false, 1);
@@ -76,7 +76,7 @@ PlatformerGame.Game.prototype = {
         this.showDebug = false;
         for (var i = 0; i < 10; i++)
         {
-            this.createStar();
+            //this.createStar();
         }
 
         this.rKey = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
@@ -126,7 +126,7 @@ createStar: function() {
             this.timeSpent = this.game.time.now - this.startTime;
             this.scoreText.text = "Time spent: " + parseFloat( (this.timeSpent / 1000)).toFixed(1) + "s";
 
-        if (this.timer % 80 == 0) {
+        if (this.timer % 60 == 0) {
             this.createStar();
         }
         //  Collide the player and the stars with the platforms
@@ -190,7 +190,9 @@ createStar: function() {
         this.player.x = result[0].x;
         this.player.y = result[0].y;
         this.player.frame = 1; 
-
+        this.choppersound.stop();
+        this.choppersound.play(false, 1)
+;0.0
     },
 
     win: function() {
