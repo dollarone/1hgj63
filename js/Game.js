@@ -16,7 +16,7 @@ PlatformerGame.Game.prototype = {
 
         this.map.addTilesetImage('castle_tileset_part1', 'tiles');
 
-        //this.blockedLayer = this.map.createLayer('objectLayer');
+        this.backgroundLayer = this.map.createLayer('backgroundLayer');
         this.blockedLayer = this.map.createLayer('blockedLayer');
         //this.foregroundLayer = this.map.createLayer('foregroundLayer');
 
@@ -24,9 +24,12 @@ PlatformerGame.Game.prototype = {
 
         // make the world boundaries fit the ones in the tiled map
         this.blockedLayer.resizeWorld();
+        var result = this.findObjectsByType('exit', this.map, 'objectLayer');
+        this.exit = this.game.add.sprite(result[0].x, result[0].y, 'chopper');
+  
 
-        var result = this.findObjectsByType('playerStart', this.map, 'objectLayer');
-        this.player = this.game.add.sprite(result[0].x, result[0].y, 'dude');
+        this.playerStart = this.findObjectsByType('playerStart', this.map, 'objectLayer');
+        this.player = this.game.add.sprite(this.playerStart[0].x, this.playerStart[0].y, 'dude');
         this.player.frame = 0; 
 
         //  We need to enable physics on the player
@@ -37,6 +40,8 @@ PlatformerGame.Game.prototype = {
         this.player.body.bounce.y = 0;
         this.player.body.gravity.y = 400;
         this.player.anchor.setTo(0.5);
+
+        this.player.body.setSize(22, 28, 2, 2);
         this.player.body.collideWorldBounds = false;
 
         this.game.camera.follow(this.player);
@@ -60,8 +65,6 @@ PlatformerGame.Game.prototype = {
         this.choppersound.play(false, 1);
 
 
-        var result = this.findObjectsByType('exit', this.map, 'objectLayer');
-        this.exit = this.game.add.sprite(result[0].x, result[0].y, 'chopper');
         this.exit.anchor.setTo(0,0.5);
         this.exit.scale.setTo(2);
         this.game.physics.arcade.enable(this.exit);
@@ -128,9 +131,17 @@ createStar: function() {
             this.timeSpent = this.game.time.now - this.startTime;
             this.scoreText.text = "Time spent: " + parseFloat( (this.timeSpent / 1000)).toFixed(1) + "s";
 
-        if (this.timer % 60 == 0) {
+        if (this.timer % 70 == 0) {
             this.createStar();
         }
+
+        if (this.timer % 643 == 0) {
+            for (var i = 0; i < 4; i++) {
+                this.createStar();
+            }
+        }
+
+
         //  Collide the player and the stars with the platforms
         this.game.physics.arcade.collide(this.player, this.blockedLayer);
         this.game.physics.arcade.collide(this.stars, this.blockedLayer);
@@ -188,13 +199,16 @@ createStar: function() {
     },
 
     death: function() {
-        var result = this.findObjectsByType('playerStart', this.map, 'objectLayer');
-        this.player.x = result[0].x;
-        this.player.y = result[0].y;
+        this.player.x = this.playerStart[0].x;
+        this.player.y = this.playerStart[0].y;
         this.player.frame = 1; 
         this.choppersound.stop();
-        this.choppersound.play(false, 1)
-;0.0
+        this.choppersound.play(false, 1);
+        this.startTime = this.game.time.now;
+        this.stars.forEach(function(barrel) {
+            barrel.kill();
+        });
+        this.timer = 0;
     },
 
     win: function() {
@@ -233,7 +247,6 @@ createStar: function() {
     render: function() {
 
         if (this.showDebug) {
-            this.game.debug.body(this.star);
             this.game.debug.body(this.player);
         }
     },
